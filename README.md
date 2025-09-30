@@ -1,7 +1,7 @@
 
   # Texas chickend
 
-  This is a code bundle for Modern Website Header Component. The original project is available at 
+  This is a code bundle for Modern Website Header Component. The original project is available at https://texas-two.vercel.app/
 
   ## Running the code
 
