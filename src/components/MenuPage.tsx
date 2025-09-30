@@ -1,5 +1,4 @@
-import { useState } from "react";
-import { useState } from "react";
+import React, { useState } from "react";
 import { TexasChickenHeader } from "./TexasChickenHeader";
 import { TexasChickenFooter } from "./TexasChickenFooter";
 import { ProductFilterSearch } from "./ProductFilterSearch";
@@ -284,7 +283,9 @@ export function MenuPage({
             {/* Products Grid */}
             <div className="grid grid-cols-4 gap-6 mb-8">
               {allProducts.map((product) => (
-                <ProductCard key={product.id} product={product} />
+                <div key={product.id}>
+                  <ProductCard product={product} />
+                </div>
               ))}
             </div>
 
@@ -366,7 +367,9 @@ export function MenuPage({
           {/* Products Grid - 2 columns for mobile */}
           <div className="grid grid-cols-2 gap-4 mb-8">
             {allProducts.slice(0, 6).map((product) => (
-              <ProductCard key={product.id} product={product} />
+              <div key={product.id}>
+                <ProductCard product={product} />
+              </div>
             ))}
           </div>
 

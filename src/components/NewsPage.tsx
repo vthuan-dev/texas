@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 import { ChevronLeft, ChevronRight, Calendar, ArrowRight } from "lucide-react";
 import { TexasChickenHeader } from "./TexasChickenHeader";
@@ -258,7 +258,7 @@ export function NewsPage({
       />
       
       {/* Main Content */}
-      <main className="flex-1 bg-white">
+      <main className="flex-1 bg-white pt-20 lg:pt-24">
         <div className="max-w-7xl mx-auto px-4 lg:px-8 py-8 lg:py-12">
           {/* Page Title */}
           <div className="text-center mb-8 lg:mb-12">
@@ -273,9 +273,13 @@ export function NewsPage({
 
           {/* News Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-            {currentItems.map((item) => (
-              <NewsCard key={item.id} item={item} />
-            ))}
+            {currentItems.map((item) => {
+              return (
+                <div key={item.id}>
+                  <NewsCard item={item} />
+                </div>
+              );
+            })}
           </div>
 
           {/* Pagination */}

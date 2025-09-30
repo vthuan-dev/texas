@@ -1,5 +1,5 @@
 "use client";
-import { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { User, Menu, X, Package } from "lucide-react";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 // Logo from Texas Chicken Vietnam
@@ -76,7 +76,7 @@ export function TexasChickenHeader({ onUserClick, onLogoClick, onMenuClick, onAb
 
 
   return (
-    <header className="w-full bg-[#212121]/95 backdrop-blur-sm sticky top-0 z-50 shadow-lg transition-all duration-300">
+    <header className="w-full bg-[#212121]/95 backdrop-blur-sm sticky top-0 z-50 shadow-lg transition-all duration-300 pointer-events-auto">
       {/* Main Header */}
       <div className="px-4 py-2 lg:px-8 lg:py-3">
         <div className="flex items-center justify-between max-w-7xl mx-auto">
