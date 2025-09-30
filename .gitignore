@@ -1,0 +1,14 @@
+# Dependencies
+node_modules/
+package-lock.json
+
+# Build output
+dist/
+.vite/
+*.log
+
+# Editor/OS
+.DS_Store
+Thumbs.db
+.vscode/
+"@ | Out-File -Encoding utf8 .gitignore
