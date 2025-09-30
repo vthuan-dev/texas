@@ -21,12 +21,17 @@ interface TexasChickenHeaderProps {
 export function TexasChickenHeader({ onUserClick, onLogoClick, onMenuClick, onAboutClick, onRestaurantClick, onOrderTrackingClick, onNewsClick, onLogout, activeLink, isLoggedIn, userName }: TexasChickenHeaderProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showUserDropdown, setShowUserDropdown] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Cleanup timeout on unmount
+  // Scroll shadow + cleanup timeout on unmount
   useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 10);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
     return () => {
-      if (timeoutRef.current) {
+      window.removeEventListener('scroll', onScroll);
+      if (timeoutRef.current) { 
         clearTimeout(timeoutRef.current);
       }
     };
@@ -76,7 +81,7 @@ export function TexasChickenHeader({ onUserClick, onLogoClick, onMenuClick, onAb
 
 
   return (
-    <header className="w-full bg-[#212121] relative z-50">
+    <header className={`w-full sticky top-0 z-50 bg-[#212121] ${scrolled ? 'shadow-md/50 shadow-black/20 backdrop-blur-sm' : ''}`}>
       {/* Main Header */}
       <div className="px-4 py-2 lg:px-8 lg:py-3">
         <div className="flex items-center justify-between max-w-7xl mx-auto">
@@ -118,14 +123,7 @@ export function TexasChickenHeader({ onUserClick, onLogoClick, onMenuClick, onAb
 
             {/* Action Icons */}
             <div className="flex items-center space-x-3 lg:space-x-4">
-              {/* Language Selector - Hidden on mobile (bỏ text VN) */}
-              <button className="hidden sm:flex items-center space-x-2 hover:opacity-80 transition-opacity">
-                <ImageWithFallback
-                  src="https://images.unsplash.com/photo-1725335739389-38bc884667b9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx8fDE3NTkxMjc3NjF8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
-                  alt="Vietnamese Flag"
-                  className="w-6 h-4 object-cover rounded-sm"
-                />
-              </button>
+              {/* Language Selector removed */}
 
 
 
@@ -297,15 +295,7 @@ export function TexasChickenHeader({ onUserClick, onLogoClick, onMenuClick, onAb
                 </button>
               )}
               
-              {/* Language for Mobile */}
-              <button className="flex items-center space-x-3 text-white hover:text-[#FFC72C] hover:bg-gray-700/50 transition-all duration-200 py-4 px-3 w-full rounded-lg">
-                <ImageWithFallback
-                  src="https://images.unsplash.com/photo-1725335739389-38bc884667b9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx8fDE3NTkxMjc3NjF8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
-                  alt="Vietnamese Flag"
-                  className="w-6 h-4 object-cover rounded-sm"
-                />
-                <span>TIẾNG VIỆT</span>
-              </button>
+              {/* Language button removed on mobile */}
             </div>
           </div>
         </nav>
