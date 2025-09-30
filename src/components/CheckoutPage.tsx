@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { TexasChickenHeader } from "./TexasChickenHeader";
 import { TexasChickenFooter } from "./TexasChickenFooter";
 import { Input } from "./ui/input";
@@ -52,31 +52,39 @@ export function CheckoutPage({
     address: ""
   });
 
-  // Default product if none provided
-  const defaultProduct: Product = {
+  // Default product if none provided - memoized to prevent recreation
+  const defaultProduct = useMemo<Product>(() => ({
     id: 100,
     name: "COMBO BURGER TEX SUPREME",
     price: "89.000đ",
     originalPrice: "105.000đ",
     image: "",
     description: []
-  };
+  }), []);
 
   const currentProduct = product || defaultProduct;
   
-  // Calculate total (remove currency symbol and dots for calculation)
-  const priceNumber = parseInt(currentProduct.price.replace(/[^\d]/g, ''));
-  const totalPrice = priceNumber * quantity;
-  const formattedTotal = totalPrice.toLocaleString('vi-VN') + 'đ';
+  // Calculate total (remove currency symbol and dots for calculation) - memoized
+  const { priceNumber, totalPrice, formattedTotal } = useMemo(() => {
+    const price = parseInt(currentProduct.price.replace(/[^\d]/g, ''));
+    const total = price * quantity;
+    const formatted = total.toLocaleString('vi-VN') + 'đ';
+    return {
+      priceNumber: price,
+      totalPrice: total,
+      formattedTotal: formatted
+    };
+  }, [currentProduct.price, quantity]);
 
-  const handleInputChange = (field: string, value: string) => {
+  // Memoized input change handler to prevent recreation
+  const handleInputChange = useCallback((field: string, value: string) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
     }));
-  };
+  }, []);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = useCallback((e: React.FormEvent) => {
     e.preventDefault();
     
     // Basic validation
@@ -89,7 +97,7 @@ export function CheckoutPage({
     if (onOrderComplete) {
       onOrderComplete();
     }
-  };
+  }, [formData.fullName, formData.phone, formData.address, onOrderComplete]);
 
   return (
     <div className="min-h-screen bg-[#212121] flex flex-col">

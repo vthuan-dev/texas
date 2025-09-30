@@ -1,4 +1,4 @@
-import React from "react";
+import { useState } from "react";
 import { useState } from "react";
 import { TexasChickenHeader } from "./TexasChickenHeader";
 import { TexasChickenFooter } from "./TexasChickenFooter";
@@ -182,8 +182,7 @@ export function MenuPage({
     }
   }
 
-  interface ProductCardProps { product: Product }
-  const ProductCard: React.FC<ProductCardProps> = ({ product }) => (
+  const ProductCard = ({ product }: { product: Product }) => (
     <div className="bg-white rounded-xl overflow-hidden border border-gray-200 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
       <div className="aspect-square overflow-hidden">
         <ImageWithFallback

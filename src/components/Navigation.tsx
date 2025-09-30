@@ -19,7 +19,17 @@ import { NewsPage } from "./NewsPage";
 import { RestaurantPage } from "./RestaurantPage";
 import { SearchResultsPage } from "./SearchResultsPage";
 
-type PageView = "homepage" | "auth" | "menu" | "product-detail" | "checkout" | "about" | "order-tracking" | "news" | "restaurant" | "search-results";
+type PageView =
+  | "homepage"
+  | "auth"
+  | "menu"
+  | "product-detail"
+  | "checkout"
+  | "about"
+  | "order-tracking"
+  | "news"
+  | "restaurant"
+  | "search-results";
 type AuthMode = "login" | "register";
 
 interface Product {
@@ -32,11 +42,14 @@ interface Product {
 }
 
 export function Navigation() {
-  const [currentPage, setCurrentPage] = useState<PageView>("homepage");
+  const [currentPage, setCurrentPage] =
+    useState<PageView>("homepage");
   const [authMode, setAuthMode] = useState<AuthMode>("login");
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [selectedProduct, setSelectedProduct] =
+    useState<Product | null>(null);
   const [orderQuantity, setOrderQuantity] = useState(1);
-  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] =
+    useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(true);
   const [userName, setUserName] = useState("Minh Khải");
   const [searchQuery, setSearchQuery] = useState("");
@@ -70,7 +83,10 @@ export function Navigation() {
     setCurrentPage("restaurant");
   };
 
-  const handleProductDetail = () => {
+  const handleProductDetail = (product?: Product) => {
+    if (product) {
+      setSelectedProduct(product);
+    }
     setCurrentPage("product-detail");
   };
 
@@ -124,10 +140,13 @@ export function Navigation() {
 
     return (
       <>
-        <HeroBanner onProductClick={handleProductDetail} onSearch={handleSearch} />
+        <HeroBanner
+          onProductClick={handleProductDetail}
+          onSearch={handleSearch}
+        />
         <FlashSale onProductClick={handleProductDetail} />
         <ProductShowcase onProductClick={handleProductDetail} />
-        <StoreLocator onFindRestaurants={handleRestaurantClick} />
+        <StoreLocator />
         <NewsEvents onNewsClick={handleNewsClick} />
       </>
     );
@@ -145,7 +164,7 @@ export function Navigation() {
   // Special handling for pages with their own header/footer
   if (currentPage === "menu") {
     return (
-      <MenuPage 
+      <MenuPage
         onProductClick={handleProductDetail}
         onLogoClick={handleLogoClick}
         onUserClick={handleUserClick}
@@ -165,6 +184,7 @@ export function Navigation() {
     return (
       <>
         <ProductDetailPage
+          product={selectedProduct || undefined}
           onBackToHome={handleLogoClick}
           onBackToMenu={handleMenuClick}
           onOrderComplete={handleOrderComplete}
@@ -238,8 +258,10 @@ export function Navigation() {
     return (
       <NewsPage
         onLogoClick={handleLogoClick}
+        onUserClick={handleUserClick}
         onMenuClick={handleMenuClick}
         onAboutClick={handleAboutClick}
+        onRestaurantClick={handleRestaurantClick}
         onOrderTrackingClick={handleOrderTrackingClick}
         onNewsClick={handleNewsClick}
         onLogout={handleLogout}
@@ -252,11 +274,12 @@ export function Navigation() {
   if (currentPage === "about") {
     return (
       <div className="min-h-screen bg-white flex flex-col">
-        <TexasChickenHeader 
+        <TexasChickenHeader
           onUserClick={handleUserClick}
           onLogoClick={handleLogoClick}
           onMenuClick={handleMenuClick}
           onAboutClick={handleAboutClick}
+          onRestaurantClick={handleRestaurantClick}
           onOrderTrackingClick={handleOrderTrackingClick}
           onNewsClick={handleNewsClick}
           onLogout={handleLogout}
@@ -264,11 +287,11 @@ export function Navigation() {
           isLoggedIn={isLoggedIn}
           userName={userName}
         />
-        
+
         <main className="flex-1">
           <AboutPage onBackToHome={handleLogoClick} />
         </main>
-        
+
         <TexasChickenFooter />
       </div>
     );
@@ -277,7 +300,7 @@ export function Navigation() {
   if (currentPage === "restaurant") {
     return (
       <div className="min-h-screen bg-white flex flex-col">
-        <TexasChickenHeader 
+        <TexasChickenHeader
           onUserClick={handleUserClick}
           onLogoClick={handleLogoClick}
           onMenuClick={handleMenuClick}
@@ -290,11 +313,11 @@ export function Navigation() {
           isLoggedIn={isLoggedIn}
           userName={userName}
         />
-        
+
         <main className="flex-1">
           <RestaurantPage onBackToHome={handleLogoClick} />
         </main>
-        
+
         <TexasChickenFooter />
       </div>
     );
@@ -303,7 +326,7 @@ export function Navigation() {
   if (currentPage === "search-results") {
     return (
       <div className="min-h-screen bg-white flex flex-col">
-        <TexasChickenHeader 
+        <TexasChickenHeader
           onUserClick={handleUserClick}
           onLogoClick={handleLogoClick}
           onMenuClick={handleMenuClick}
@@ -316,15 +339,15 @@ export function Navigation() {
           isLoggedIn={isLoggedIn}
           userName={userName}
         />
-        
+
         <main className="flex-1">
-          <SearchResultsPage 
+          <SearchResultsPage
             searchQuery={searchQuery}
             onProductClick={handleProductDetail}
             onMenuClick={handleMenuClick}
           />
         </main>
-        
+
         <TexasChickenFooter />
       </div>
     );
@@ -332,7 +355,7 @@ export function Navigation() {
 
   return (
     <div className="min-h-screen bg-white flex flex-col">
-      <TexasChickenHeader 
+      <TexasChickenHeader
         onUserClick={handleUserClick}
         onLogoClick={handleLogoClick}
         onMenuClick={handleMenuClick}
@@ -345,13 +368,11 @@ export function Navigation() {
         isLoggedIn={isLoggedIn}
         userName={userName}
       />
-      
-      <main className="flex-1">
-        {renderMainContent()}
-      </main>
-      
+
+      <main className="flex-1">{renderMainContent()}</main>
+
       <TexasChickenFooter />
-      
+
       <SuccessModal
         isOpen={showSuccessModal}
         onClose={handleModalClose}

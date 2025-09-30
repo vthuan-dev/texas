@@ -1607,6 +1607,10 @@
     background-color: #212121;
   }
 
+  .bg-\[\#212121\]\/95 {
+    background-color: oklab(24.7759% 0 0 / .95);
+  }
+
   .bg-\[\#D42323\] {
     background-color: #d42323;
   }
@@ -2990,12 +2994,6 @@
   }
 
   @media (hover: hover) {
-    .hover\:opacity-80:hover {
-      opacity: .8;
-    }
-  }
-
-  @media (hover: hover) {
     .hover\:opacity-100:hover {
       opacity: 1;
     }
@@ -3335,12 +3333,6 @@
 
   .data-\[state\=open\]\:zoom-in-95[data-state="open"] {
     --tw-enter-scale: .95;
-  }
-
-  @media (width >= 40rem) {
-    .sm\:flex {
-      display: flex;
-    }
   }
 
   @media (width >= 40rem) {

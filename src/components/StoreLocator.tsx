@@ -1,4 +1,3 @@
-import React from "react";
 import { Button } from "./ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 
@@ -24,11 +23,7 @@ const districts = [
   "Thủ Đức"
 ];
 
-interface StoreLocatorProps {
-  onFindRestaurants?: () => void;
-}
-
-export function StoreLocator({ onFindRestaurants }: StoreLocatorProps) {
+export function StoreLocator() {
   return (
     <section className="relative py-20 px-4 lg:px-8 overflow-hidden">
       {/* Background Image */}
@@ -100,7 +95,6 @@ export function StoreLocator({ onFindRestaurants }: StoreLocatorProps) {
             <Button 
               size="lg"
               className="bg-[#FFC72C] hover:bg-[#E6B329] text-black px-12 py-3 text-lg uppercase tracking-wider shadow-lg"
-              onClick={onFindRestaurants}
             >
               Tìm kiếm
             </Button>

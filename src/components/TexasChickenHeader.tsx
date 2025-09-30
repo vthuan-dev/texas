@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import { User, Menu, X, Package } from "lucide-react";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 // Logo from Texas Chicken Vietnam
@@ -21,17 +21,12 @@ interface TexasChickenHeaderProps {
 export function TexasChickenHeader({ onUserClick, onLogoClick, onMenuClick, onAboutClick, onRestaurantClick, onOrderTrackingClick, onNewsClick, onLogout, activeLink, isLoggedIn, userName }: TexasChickenHeaderProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showUserDropdown, setShowUserDropdown] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Scroll shadow + cleanup timeout on unmount
+  // Cleanup timeout on unmount
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 10);
-    onScroll();
-    window.addEventListener('scroll', onScroll, { passive: true });
     return () => {
-      window.removeEventListener('scroll', onScroll);
-      if (timeoutRef.current) { 
+      if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
       }
     };
@@ -81,7 +76,7 @@ export function TexasChickenHeader({ onUserClick, onLogoClick, onMenuClick, onAb
 
 
   return (
-    <header className={`w-full sticky top-0 z-[9999] bg-[#212121] ${scrolled ? 'shadow-md/50 shadow-black/20 backdrop-blur-sm' : ''}`}>
+    <header className="w-full bg-[#212121]/95 backdrop-blur-sm sticky top-0 z-50 shadow-lg transition-all duration-300">
       {/* Main Header */}
       <div className="px-4 py-2 lg:px-8 lg:py-3">
         <div className="flex items-center justify-between max-w-7xl mx-auto">
@@ -123,7 +118,7 @@ export function TexasChickenHeader({ onUserClick, onLogoClick, onMenuClick, onAb
 
             {/* Action Icons */}
             <div className="flex items-center space-x-3 lg:space-x-4">
-              {/* Language Selector removed */}
+
 
 
 
@@ -204,7 +199,7 @@ export function TexasChickenHeader({ onUserClick, onLogoClick, onMenuClick, onAb
       </div>
 
       {/* Mobile Navigation Overlay & Menu */}
-      <div className={`lg:hidden fixed inset-0 z-[9998] transition-opacity duration-300 ${
+      <div className={`lg:hidden fixed inset-0 z-40 transition-opacity duration-300 ${
         isMobileMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
       }`}>
         {/* Overlay */}
@@ -294,8 +289,7 @@ export function TexasChickenHeader({ onUserClick, onLogoClick, onMenuClick, onAb
                   <span>ĐĂNG NHẬP</span>
                 </button>
               )}
-              
-              {/* Language button removed on mobile */}
+
             </div>
           </div>
         </nav>
