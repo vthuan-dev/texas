@@ -24,42 +24,75 @@ interface Product {
 // Stable modal component to avoid remounting on every parent re-render
 interface CheckoutModalProps {
   quantity: number;
-  formattedSubtotal: string;
-  formattedTotal: string;
-  voucherDiscount: number;
-  formattedDiscount: string;
   currentProduct: Product;
-  formData: { fullName: string; phone: string; address: string };
-  onInputChange: (field: string, value: string) => void;
-  voucherCode: string;
-  setVoucherCode: (value: string) => void;
-  voucherMessage: string;
-  voucherStatus: "idle" | "success" | "error";
-  onVoucherApply: () => void;
-  onSubmit: (e: React.FormEvent) => void;
+  onSubmit?: () => void;
   onClose: () => void;
 }
 
 const CheckoutModalComponent = ({
   quantity,
-  formattedSubtotal,
-  formattedTotal,
-  voucherDiscount,
-  formattedDiscount,
   currentProduct,
-  formData,
-  onInputChange,
-  voucherCode,
-  setVoucherCode,
-  voucherMessage,
-  voucherStatus,
-  onVoucherApply,
   onSubmit,
   onClose,
 }: CheckoutModalProps) => {
   const handleBackgroundClick = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget) onClose();
   };
+
+  // Local form state to avoid re-rendering parent on each keystroke
+  const [localForm, setLocalForm] = useState({ fullName: "", phone: "", address: "" });
+  const [voucherCode, setVoucherCode] = useState("");
+  const [voucherDiscount, setVoucherDiscount] = useState(0);
+  const [voucherMessage, setVoucherMessage] = useState("");
+  const [voucherStatus, setVoucherStatus] = useState<"idle" | "success" | "error">("idle");
+
+  const priceNumber = parseInt(currentProduct.price.replace(/[^\d]/g, ""));
+  const formattedSubtotal = (priceNumber * quantity).toLocaleString("vi-VN") + "đ";
+  const formattedTotal = Math.max(0, priceNumber * quantity - voucherDiscount).toLocaleString("vi-VN") + "đ";
+  const formattedDiscount = voucherDiscount.toLocaleString("vi-VN") + "đ";
+
+  const handleInputChange = (field: string, value: string) => {
+    setLocalForm((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleVoucherApply = () => {
+    setVoucherStatus("idle");
+    setVoucherMessage("");
+
+    const validVouchers = {
+      TEXAS20: { discount: 20000, message: "Giảm 20.000đ cho đơn hàng từ 80.000đ" },
+      COMBO30: { discount: 30000, message: "Giảm 30.000đ cho combo đặc biệt" },
+      NEWUSER: { discount: 15000, message: "Giảm 15.000đ cho khách hàng mới" },
+      FLASH50: { discount: 50000, message: "Flash sale - Giảm 50.000đ" },
+    } as const;
+
+    const voucher = validVouchers[voucherCode.toUpperCase() as keyof typeof validVouchers];
+    if (voucher) {
+      const currentTotal = priceNumber * quantity;
+      if (currentTotal >= voucher.discount) {
+        setVoucherDiscount(voucher.discount);
+        setVoucherStatus("success");
+        setVoucherMessage(`Áp dụng voucher thành công! ${voucher.message}`);
+      } else {
+        setVoucherStatus("error");
+        setVoucherMessage("Đơn hàng không đủ điều kiện áp dụng voucher này.");
+      }
+    } else {
+      setVoucherStatus("error");
+      setVoucherMessage("Mã voucher không hợp lệ hoặc đã hết hạn.");
+    }
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!localForm.fullName || !localForm.phone || !localForm.address) {
+      alert("Vui lòng điền đầy đủ thông tin!");
+      return;
+    }
+    onClose();
+    onSubmit?.();
+  };
+
   return (
     <div
       className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4"
@@ -89,9 +122,7 @@ const CheckoutModalComponent = ({
           <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-6 mb-8 border border-gray-200">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-gray-800 text-xl">Tóm tắt đơn hàng</h2>
-              <div className="bg-[#D42323] text-white px-3 py-1 rounded-full text-sm">
-                {quantity} món
-              </div>
+              <div className="bg-[#D42323] text-white px-3 py-1 rounded-full text-sm">{quantity} món</div>
             </div>
             <div className="space-y-4">
               <div className="flex justify-between items-start">
@@ -118,13 +149,13 @@ const CheckoutModalComponent = ({
           </div>
 
           {/* Form */}
-          <form onSubmit={onSubmit} className="space-y-8">
-            {/* Customer Information */}
+          <form onSubmit={handleSubmit} className="space-y-8">
             <div className="bg-white border border-gray-200 rounded-2xl p-6">
               <h3 className="text-gray-800 text-lg mb-6 flex items-center gap-3">
                 <div className="w-8 h-8 bg-[#8B7355] text-white rounded-full flex items-center justify-center text-sm">1</div>
                 Thông tin khách hàng
               </h3>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <Label htmlFor="fullName" className="text-gray-700 mb-3 block">
@@ -133,8 +164,8 @@ const CheckoutModalComponent = ({
                   <Input
                     id="fullName"
                     type="text"
-                    value={formData.fullName}
-                    onChange={(e) => onInputChange('fullName', e.target.value)}
+                    value={localForm.fullName}
+                    onChange={(e) => handleInputChange("fullName", e.target.value)}
                     className="bg-gray-50 border-gray-200 focus:border-[#8B7355] focus:ring-[#8B7355] rounded-xl h-12"
                     placeholder="Nhập họ và tên của bạn"
                     required
@@ -147,22 +178,23 @@ const CheckoutModalComponent = ({
                   <Input
                     id="phone"
                     type="tel"
-                    value={formData.phone}
-                    onChange={(e) => onInputChange('phone', e.target.value)}
+                    value={localForm.phone}
+                    onChange={(e) => handleInputChange("phone", e.target.value)}
                     className="bg-gray-50 border-gray-200 focus:border-[#8B7355] focus:ring-[#8B7355] rounded-xl h-12"
                     placeholder="Nhập số điện thoại"
                     required
                   />
                 </div>
               </div>
+
               <div className="mt-6">
                 <Label htmlFor="address" className="text-gray-700 mb-3 block">
                   Địa chỉ nhận hàng *
                 </Label>
                 <textarea
                   id="address"
-                  value={formData.address}
-                  onChange={(e) => onInputChange('address', e.target.value)}
+                  value={localForm.address}
+                  onChange={(e) => handleInputChange("address", e.target.value)}
                   className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-[#8B7355] focus:ring-2 focus:ring-[#8B7355] focus:ring-opacity-20 transition-colors duration-200 resize-none"
                   rows={3}
                   placeholder="Nhập địa chỉ chi tiết để nhận hàng"
@@ -171,7 +203,6 @@ const CheckoutModalComponent = ({
               </div>
             </div>
 
-            {/* Voucher Section */}
             <div className="bg-white border border-gray-200 rounded-2xl p-6">
               <h3 className="text-gray-800 text-lg mb-6 flex items-center gap-3">
                 <div className="w-8 h-8 bg-[#FFC72C] text-gray-800 rounded-full flex items-center justify-center text-sm">2</div>
@@ -187,27 +218,25 @@ const CheckoutModalComponent = ({
                 />
                 <button
                   type="button"
-                  onClick={onVoucherApply}
+                  onClick={handleVoucherApply}
                   className="px-6 py-3 bg-gradient-to-r from-[#FFC72C] to-[#FFD700] text-gray-800 rounded-xl hover:from-[#FFD700] hover:to-[#FFC72C] transition-all duration-200 whitespace-nowrap"
                 >
                   Áp dụng
                 </button>
               </div>
               {voucherMessage && (
-                <div className={`mt-4 p-3 rounded-lg text-sm ${
-                  voucherStatus === 'success' ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-red-50 text-red-700 border border-red-200'
-                }`}>
+                <div
+                  className={`mt-4 p-3 rounded-lg text-sm ${
+                    voucherStatus === "success"
+                      ? "bg-green-50 text-green-700 border border-green-200"
+                      : "bg-red-50 text-red-700 border border-red-200"
+                  }`}
+                >
                   {voucherMessage}
                 </div>
               )}
-              <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
-                <p className="text-blue-700 text-sm">
-                  💡 Mã voucher có sẵn: <span className="font-mono">TEXAS20</span>, <span className="font-mono">COMBO30</span>, <span className="font-mono">NEWUSER</span>, <span className="font-mono">FLASH50</span>
-                </p>
-              </div>
             </div>
 
-            {/* Payment Method */}
             <div className="bg-white border border-gray-200 rounded-2xl p-6">
               <h3 className="text-gray-800 text-lg mb-6 flex items-center gap-3">
                 <div className="w-8 h-8 bg-[#8B7355] text-white rounded-full flex items-center justify-center text-sm">3</div>
@@ -229,7 +258,6 @@ const CheckoutModalComponent = ({
               </div>
             </div>
 
-            {/* Submit Button */}
             <div className="sticky bottom-0 bg-white pt-6 border-t">
               <button
                 type="submit"
@@ -585,19 +613,8 @@ export function ProductDetailPage({
   const CheckoutModal = () => (
     <CheckoutModalComponent
       quantity={quantity}
-      formattedSubtotal={formattedSubtotal}
-      formattedTotal={formattedTotal}
-      voucherDiscount={voucherDiscount}
-      formattedDiscount={formattedDiscount}
       currentProduct={currentProduct}
-      formData={formData}
-      onInputChange={handleInputChange}
-      voucherCode={voucherCode}
-      setVoucherCode={setVoucherCode}
-      voucherMessage={voucherMessage}
-      voucherStatus={voucherStatus}
-      onVoucherApply={handleVoucherApply}
-      onSubmit={handleSubmit}
+      onSubmit={() => onOrderComplete?.()}
       onClose={handleModalClose}
     />
   );
@@ -884,19 +901,8 @@ export function ProductDetailPage({
         {showCheckoutModal && (
           <CheckoutModalComponent
             quantity={quantity}
-            formattedSubtotal={formattedSubtotal}
-            formattedTotal={formattedTotal}
-            voucherDiscount={voucherDiscount}
-            formattedDiscount={formattedDiscount}
             currentProduct={currentProduct}
-            formData={formData}
-            onInputChange={handleInputChange}
-            voucherCode={voucherCode}
-            setVoucherCode={setVoucherCode}
-            voucherMessage={voucherMessage}
-            voucherStatus={voucherStatus}
-            onVoucherApply={handleVoucherApply}
-            onSubmit={handleSubmit}
+            onSubmit={() => onOrderComplete?.()}
             onClose={handleModalClose}
           />
         )}
