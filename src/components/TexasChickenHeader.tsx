@@ -1,5 +1,5 @@
 "use client";
-import { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { User, Menu, X, Package } from "lucide-react";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 // Logo from Texas Chicken Vietnam
@@ -81,7 +81,7 @@ export function TexasChickenHeader({ onUserClick, onLogoClick, onMenuClick, onAb
 
 
   return (
-    <header className={`w-full sticky top-0 z-50 bg-[#212121] ${scrolled ? 'shadow-md/50 shadow-black/20 backdrop-blur-sm' : ''}`}>
+    <header className={`w-full sticky top-0 z-[9999] bg-[#212121] ${scrolled ? 'shadow-md/50 shadow-black/20 backdrop-blur-sm' : ''}`}>
       {/* Main Header */}
       <div className="px-4 py-2 lg:px-8 lg:py-3">
         <div className="flex items-center justify-between max-w-7xl mx-auto">
@@ -204,7 +204,7 @@ export function TexasChickenHeader({ onUserClick, onLogoClick, onMenuClick, onAb
       </div>
 
       {/* Mobile Navigation Overlay & Menu */}
-      <div className={`lg:hidden fixed inset-0 z-40 transition-opacity duration-300 ${
+      <div className={`lg:hidden fixed inset-0 z-[9998] transition-opacity duration-300 ${
         isMobileMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
       }`}>
         {/* Overlay */}
