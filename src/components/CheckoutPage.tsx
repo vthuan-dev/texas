@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { TexasChickenHeader } from "./TexasChickenHeader";
 import { TexasChickenFooter } from "./TexasChickenFooter";
 import { Input } from "./ui/input";
@@ -99,19 +99,6 @@ export function CheckoutPage({
     }
   }, [formData.fullName, formData.phone, formData.address, onOrderComplete]);
 
-  // Ngăn submit form khi nhấn Enter trong input (tránh reset form ngoài ý muốn)
-  const preventEnterSubmit = useCallback((e: React.KeyboardEvent<HTMLFormElement>) => {
-    if (e.key === "Enter") {
-      const target = e.target as HTMLElement;
-      const tag = target.tagName.toLowerCase();
-      const isTextarea = tag === "textarea";
-      const isButton = tag === "button" || (target as HTMLButtonElement).type === "submit";
-      if (!isTextarea && !isButton) {
-        e.preventDefault();
-      }
-    }
-  }, []);
-
   return (
     <div className="min-h-screen bg-[#212121] flex flex-col">
       {/* Header */}
@@ -157,7 +144,7 @@ export function CheckoutPage({
           </div>
 
           {/* Input Form */}
-          <form onSubmit={handleSubmit} onKeyDown={preventEnterSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-4">
               <div>
                 <Label htmlFor="fullName" className="text-gray-700">

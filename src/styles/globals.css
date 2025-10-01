@@ -187,3 +187,80 @@
 html {
   font-size: var(--font-size);
 }
+
+/* Line clamp utilities */
+.line-clamp-2 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.line-clamp-3 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+/* Force mobile menu z-index above everything */
+.mobile-menu-overlay {
+  z-index: 99999 !important;
+  position: fixed !important;
+}
+
+.mobile-menu-backdrop {
+  z-index: 99999 !important;
+  position: absolute !important;
+}
+
+.mobile-menu-sidebar {
+  z-index: 100000 !important;
+  position: absolute !important;
+}
+
+/* Hide scrollbar when mobile menu is open */
+body.mobile-menu-open {
+  overflow: hidden !important;
+  /* Hide scrollbar for webkit browsers */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
+body.mobile-menu-open::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
+/* Ensure body doesn't shift when scrollbar is hidden */
+html.mobile-menu-open {
+  overflow: hidden;
+}
+
+/* Force user dropdown z-index above ALL elements including homepage components */
+.user-dropdown {
+  z-index: 999999 !important;
+  position: absolute !important;
+  transform: translateZ(0) !important;
+  will-change: transform !important;
+  isolation: isolate !important;
+  /* Force above everything */
+  pointer-events: auto !important;
+  display: block !important;
+}
+
+/* Force header to have high stacking context */
+header[role="banner"] {
+  position: relative !important;
+  z-index: 50000 !important;
+}
+
+/* Additional override for any conflicting elements */
+[class*="z-"] {
+  z-index: auto;
+}
+
+.mobile-menu-overlay,
+.mobile-menu-backdrop,
+.mobile-menu-sidebar {
+  z-index: 100000 !important;
+}

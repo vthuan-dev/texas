@@ -18,6 +18,7 @@ import { FlashSale } from "./FlashSale";
 import { NewsPage } from "./NewsPage";
 import { RestaurantPage } from "./RestaurantPage";
 import { SearchResultsPage } from "./SearchResultsPage";
+import { EventDetailPage } from "./EventDetailPage";
 
 type PageView =
   | "homepage"
@@ -29,7 +30,8 @@ type PageView =
   | "order-tracking"
   | "news"
   | "restaurant"
-  | "search-results";
+  | "search-results"
+  | "event-detail";
 type AuthMode = "login" | "register";
 
 interface Product {
@@ -53,6 +55,7 @@ export function Navigation() {
   const [isLoggedIn, setIsLoggedIn] = useState(true);
   const [userName, setUserName] = useState("Minh Khải");
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedEventId, setSelectedEventId] = useState<number>(1);
 
   const handleUserClick = () => {
     setCurrentPage("auth");
@@ -81,6 +84,15 @@ export function Navigation() {
 
   const handleRestaurantClick = () => {
     setCurrentPage("restaurant");
+  };
+
+  const handleArticleClick = (articleId: number) => {
+    setSelectedEventId(articleId);
+    setCurrentPage("event-detail");
+  };
+
+  const handleBackToNews = () => {
+    setCurrentPage("news");
   };
 
   const handleProductDetail = (product?: Product) => {
@@ -265,6 +277,7 @@ export function Navigation() {
         onOrderTrackingClick={handleOrderTrackingClick}
         onNewsClick={handleNewsClick}
         onLogout={handleLogout}
+        onArticleClick={handleArticleClick}
         isLoggedIn={isLoggedIn}
         userName={userName}
       />
@@ -350,6 +363,26 @@ export function Navigation() {
 
         <TexasChickenFooter />
       </div>
+    );
+  }
+
+  if (currentPage === "event-detail") {
+    return (
+      <EventDetailPage
+        onLogoClick={handleLogoClick}
+        onUserClick={handleUserClick}
+        onMenuClick={handleMenuClick}
+        onAboutClick={handleAboutClick}
+        onRestaurantClick={handleRestaurantClick}
+        onOrderTrackingClick={handleOrderTrackingClick}
+        onNewsClick={handleNewsClick}
+        onLogout={handleLogout}
+        onBackToNews={handleBackToNews}
+        onRelatedArticleClick={handleArticleClick}
+        eventId={selectedEventId}
+        isLoggedIn={isLoggedIn}
+        userName={userName}
+      />
     );
   }
 

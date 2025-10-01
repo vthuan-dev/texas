@@ -5,7 +5,6 @@ import { ImageWithFallback } from "./figma/ImageWithFallback";
 import { MapPin, Clock, Phone, Navigation } from "lucide-react";
 import { Select } from "./ui/select";
 import { Input } from "./ui/input";
-import mapImage from "figma:asset/b927eff58ddd47fd291ed15c7698acc55fa4a199.png";
 
 interface Restaurant {
   id: string;
@@ -174,56 +173,34 @@ export function RestaurantPage({ onBackToHome }: RestaurantPageProps) {
         {/* Desktop Layout: Map and Restaurant List */}
         <div className="flex-1 flex flex-col lg:flex-row min-h-0">
           {/* Map Section - Left Column on Desktop, Below filters on Mobile (Smaller size) */}
-          <div className="lg:w-1/2 h-64 lg:h-auto relative bg-gray-200 order-2 lg:order-1">
-            {/* Interactive Map with Real Map Image */}
+          <div className="lg:w-2/5 h-64 lg:h-auto relative bg-gray-200 order-2 lg:order-1">
+            {/* Google Maps Iframe */}
             <div className="absolute inset-0">
-              <ImageWithFallback
-                src={mapImage}
-                alt="Bản đồ Texas Chicken Locations"
-                className="w-full h-full object-cover"
+              <iframe 
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d29804.306712119847!2d106.67803099379881!3d10.775233019884583!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31752f38f9ed887b%3A0x14aded5703768989!2sDistrict%201%2C%20Ho%20Chi%20Minh%20City%2C%20Vietnam!5e1!3m2!1sen!2s!4v1759335718407!5m2!1sen!2s" 
+                width="100%" 
+                height="100%" 
+                style={{ border: 0 }}
+                allowFullScreen
+                loading="lazy" 
+                referrerPolicy="no-referrer-when-downgrade"
+                className="rounded-lg"
+                title="Texas Chicken Locations Map"
               />
+              
               {/* Map Overlay with Info */}
-              <div className="absolute top-4 left-4 bg-black/60 backdrop-blur-sm text-white p-3 rounded-lg">
+              <div className="absolute top-4 left-4 bg-black/60 backdrop-blur-sm text-white p-3 rounded-lg pointer-events-none">
                 <div className="flex items-center gap-2 mb-1">
                   <MapPin className="w-4 h-4 text-[#FFC72C]" />
-                  <p className="text-sm">Bản đồ tương tác</p>
+                  <p className="text-sm">Google Maps</p>
                 </div>
-                <p className="text-xs text-gray-300">Click vào pin để xem thông tin nhà hàng</p>
+                <p className="text-xs text-gray-300">Tìm nhà hàng Texas Chicken gần bạn</p>
               </div>
             </div>
-            
-            {/* Map Pins positioned over real locations */}
-            {filteredRestaurants.map((restaurant, index) => {
-              // Position pins based on restaurant locations - adjust these coordinates to match real locations on the map
-              const pinPositions = [
-                { left: '45%', top: '35%' }, // Sora Garden area
-                { left: '55%', top: '40%' }, // Times City area  
-                { left: '40%', top: '30%' }, // Vincom Nguyễn Chí Thanh area
-                { left: '60%', top: '65%' }, // Diamond Plaza area (if showing HCMC)
-                { left: '58%', top: '70%' }, // Saigon Centre area
-                { left: '52%', top: '75%' }  // Crescent Mall area
-              ];
-              
-              const position = pinPositions[index % pinPositions.length];
-              
-              return (
-                <button
-                  key={restaurant.id}
-                  onClick={() => handleMapPinClick(restaurant.id)}
-                  className={`absolute w-8 h-8 rounded-full border-3 border-white shadow-lg transition-all duration-200 hover:scale-125 ${
-                    selectedRestaurant === restaurant.id ? 'bg-[#D42323] z-20 ring-2 ring-white' : 'bg-[#FFC72C] z-10'
-                  }`}
-                  style={position}
-                  title={restaurant.name}
-                >
-                  <MapPin className="w-5 h-5 text-white absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
-                </button>
-              );
-            })}
           </div>
 
           {/* Restaurant List Section - Right Column (Bigger size) */}
-          <div className="lg:w-1/2 bg-[#F5F5F5] flex flex-col order-1 lg:order-2">
+          <div className="lg:w-3/5 bg-[#F5F5F5] flex flex-col order-1 lg:order-2">
             {/* Desktop Filters */}
             <div className="hidden lg:block p-6 border-b border-gray-300">
               <h2 className="text-gray-800 mb-4">GỢI Ý NHÀ HÀNG</h2>
