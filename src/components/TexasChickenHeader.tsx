@@ -257,7 +257,7 @@ export function TexasChickenHeader({ onUserClick, onLogoClick, onMenuClick, onAb
 
   return (
     <>
-      <header className="w-full bg-[#212121]/95 backdrop-blur-sm sticky top-0 z-40 shadow-lg transition-all duration-300">
+      <header className="w-full bg-[#212121]/95 backdrop-blur-sm sticky top-0 z-[9999] shadow-lg transition-all duration-300">
         {/* Main Header */}
         <div className="px-4 py-2 lg:px-8 lg:py-3">
           <div className="flex items-center justify-between max-w-7xl mx-auto">

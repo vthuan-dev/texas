@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useState } from "react";
 import { TexasChickenHeader } from "./TexasChickenHeader";
 import { TexasChickenFooter } from "./TexasChickenFooter";
 import { ProductFilterSearch } from "./ProductFilterSearch";

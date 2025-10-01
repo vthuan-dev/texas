@@ -249,8 +249,10 @@ html.mobile-menu-open {
 }
 
 /* Force header to have high stacking context */
-header[role="banner"] {
-  position: relative !important;
+header[role="banner"],
+header {
+  position: sticky !important;
+  top: 0 !important;
   z-index: 50000 !important;
 }
 

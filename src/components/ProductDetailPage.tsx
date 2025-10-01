@@ -575,7 +575,7 @@ export function ProductDetailPage({
       />
 
       {/* Main Content with light background */}
-      <main className="flex-1 bg-[#F9F9F9] min-h-screen">
+      <main className="flex-1 bg-[#F9F9F9]">
         <div className="max-w-7xl mx-auto px-4 lg:px-8 py-8">
           <Breadcrumb items={breadcrumbItems} />
 

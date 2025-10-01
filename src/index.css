@@ -632,12 +632,12 @@
     z-index: 20;
   }
 
-  .z-40 {
-    z-index: 40;
-  }
-
   .z-50 {
     z-index: 50;
+  }
+
+  .z-\[9999\] {
+    z-index: 9999;
   }
 
   .order-1 {
@@ -4219,9 +4219,10 @@ html.mobile-menu-open {
   transform: translateZ(0) !important;
 }
 
-header[role="banner"] {
+header[role="banner"], header {
   z-index: 50000 !important;
-  position: relative !important;
+  position: sticky !important;
+  top: 0 !important;
 }
 
 [class*="z-"] {
