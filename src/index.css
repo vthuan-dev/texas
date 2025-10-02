@@ -4221,7 +4221,7 @@ html.mobile-menu-open {
 
 header[role="banner"], header {
   z-index: 50000 !important;
-  position: sticky !important;
+  /* position: sticky !important; */
   top: 0 !important;
 }
 

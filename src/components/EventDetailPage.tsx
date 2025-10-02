@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 import { TexasChickenHeader } from "./TexasChickenHeader";
 import { TexasChickenFooter } from "./TexasChickenFooter";
@@ -154,7 +154,7 @@ export function EventDetailPage({
       />
       
       {/* Main Content */}
-      <main className="flex-1 bg-white">
+      <main className="flex-1 bg-white pt-20 lg:pt-24">
         <div className="max-w-7xl mx-auto px-4 lg:px-8 py-6 lg:py-8">
           
           {/* Breadcrumb Navigation */}
