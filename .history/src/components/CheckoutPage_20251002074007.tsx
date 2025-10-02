@@ -43,8 +43,7 @@ const MemoizedInputField = memo(({
   value: string; 
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void; 
   placeholder: string;
-}) => {
-  return (
+}) => (
     <div>
       <label htmlFor={id} className="text-gray-700 text-sm font-medium block mb-2">
         {label}
@@ -77,8 +76,7 @@ const MemoizedTextarea = memo(({
   value: string; 
   onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void; 
   placeholder: string;
-}) => {
-  return (
+}) => (
     <div>
       <label htmlFor={id} className="text-gray-700 text-sm font-medium block mb-2">
         {label}

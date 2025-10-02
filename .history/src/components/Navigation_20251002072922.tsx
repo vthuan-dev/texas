@@ -57,87 +57,87 @@ export function Navigation() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedEventId, setSelectedEventId] = useState<number>(1);
 
-  const handleUserClick = useCallback(() => {
+  const handleUserClick = () => {
     setCurrentPage("auth");
     setAuthMode("login");
-  }, []);
+  };
 
-  const handleLogoClick = useCallback(() => {
+  const handleLogoClick = () => {
     setCurrentPage("homepage");
-  }, []);
+  };
 
-  const handleMenuClick = useCallback(() => {
+  const handleMenuClick = () => {
     setCurrentPage("menu");
-  }, []);
+  };
 
-  const handleAboutClick = useCallback(() => {
+  const handleAboutClick = () => {
     setCurrentPage("about");
-  }, []);
+  };
 
-  const handleOrderTrackingClick = useCallback(() => {
+  const handleOrderTrackingClick = () => {
     setCurrentPage("order-tracking");
-  }, []);
+  };
 
-  const handleNewsClick = useCallback(() => {
+  const handleNewsClick = () => {
     setCurrentPage("news");
-  }, []);
+  };
 
-  const handleRestaurantClick = useCallback(() => {
+  const handleRestaurantClick = () => {
     setCurrentPage("restaurant");
-  }, []);
+  };
 
-  const handleArticleClick = useCallback((articleId: number) => {
+  const handleArticleClick = (articleId: number) => {
     setSelectedEventId(articleId);
     setCurrentPage("event-detail");
-  }, []);
+  };
 
-  const handleBackToNews = useCallback(() => {
+  const handleBackToNews = () => {
     setCurrentPage("news");
-  }, []);
+  };
 
-  const handleProductDetail = useCallback((product?: Product) => {
+  const handleProductDetail = (product?: Product) => {
     if (product) {
       setSelectedProduct(product);
     }
     setCurrentPage("product-detail");
-  }, []);
+  };
 
-  const handleBuyNow = useCallback((product: Product, quantity: number) => {
+  const handleBuyNow = (product: Product, quantity: number) => {
     setSelectedProduct(product);
     setOrderQuantity(quantity);
     setCurrentPage("checkout");
-  }, []);
+  };
 
-  const handleOrderComplete = useCallback(() => {
+  const handleOrderComplete = () => {
     setShowSuccessModal(true);
-  }, []);
+  };
 
-  const handleModalClose = useCallback(() => {
+  const handleModalClose = () => {
     setShowSuccessModal(false);
     setCurrentPage("homepage");
     setSelectedProduct(null);
     setOrderQuantity(1);
-  }, []);
+  };
 
-  const handleSwitchAuthMode = useCallback((mode: AuthMode) => {
+  const handleSwitchAuthMode = (mode: AuthMode) => {
     setAuthMode(mode);
-  }, []);
+  };
 
-  const handleAuthSuccess = useCallback(() => {
+  const handleAuthSuccess = () => {
     setIsLoggedIn(true);
     setCurrentPage("homepage");
-  }, []);
+  };
 
-  const handleLogout = useCallback(() => {
+  const handleLogout = () => {
     setIsLoggedIn(false);
     setUserName("");
     setCurrentPage("homepage");
-  }, []);
+  };
 
-  const handleSearch = useCallback((query: string) => {
+  const handleSearch = (query: string) => {
     setSearchQuery(query);
     setCurrentPage("search-results");
-  }, []);
+  };
 
   const renderMainContent = () => {
     if (currentPage === "auth") {

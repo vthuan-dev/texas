@@ -44,6 +44,7 @@ const MemoizedInputField = memo(({
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void; 
   placeholder: string;
 }) => {
+  console.log(`🔵 MemoizedInputField ${id} render`);
   return (
     <div>
       <label htmlFor={id} className="text-gray-700 text-sm font-medium block mb-2">
@@ -54,7 +55,7 @@ const MemoizedInputField = memo(({
         type={type}
         value={value}
         onChange={onChange}
-        className="mt-2 w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:border-[#D42323] focus:ring-2 focus:ring-[#D42323] focus:ring-opacity-20 focus:outline-none"
+        className="mt-2 w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:border-[#D42323] focus:ring-2 focus:ring-[#D42323] focus:ring-opacity-20 focus:outline-none transition-colors duration-200"
         placeholder={placeholder}
         required
       />
@@ -78,6 +79,7 @@ const MemoizedTextarea = memo(({
   onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void; 
   placeholder: string;
 }) => {
+  console.log(`🟢 MemoizedTextarea ${id} render`);
   return (
     <div>
       <label htmlFor={id} className="text-gray-700 text-sm font-medium block mb-2">
@@ -87,7 +89,7 @@ const MemoizedTextarea = memo(({
         id={id}
         value={value}
         onChange={onChange}
-        className="mt-2 w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:border-[#D42323] focus:ring-2 focus:ring-[#D42323] focus:ring-opacity-20 focus:outline-none resize-none"
+        className="mt-2 w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:border-[#D42323] focus:ring-2 focus:ring-[#D42323] focus:ring-opacity-20 focus:outline-none transition-colors duration-200 resize-none"
         rows={3}
         placeholder={placeholder}
         required
@@ -114,6 +116,8 @@ export const CheckoutPage = memo(function CheckoutPage({
   isLoggedIn,
   userName
 }: CheckoutPageProps) {
+  console.log('🔄 CheckoutPage RE-RENDER');
+  
   const [formData, setFormData] = useState({
     fullName: "",
     phone: "",
@@ -280,4 +284,4 @@ export const CheckoutPage = memo(function CheckoutPage({
       <TexasChickenFooter />
     </div>
   );
-});
+}

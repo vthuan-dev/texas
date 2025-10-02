@@ -22,6 +22,7 @@ interface TexasChickenHeaderProps {
 }
 
 export const TexasChickenHeader = memo(function TexasChickenHeader({ onUserClick, onLogoClick, onMenuClick, onAboutClick, onRestaurantClick, onOrderTrackingClick, onNewsClick, onLogout, activeLink, isLoggedIn, userName }: TexasChickenHeaderProps) {
+  console.log('🟡 TexasChickenHeader RE-RENDER');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showUserDropdown, setShowUserDropdown] = useState(false);
   const [isMounted, setIsMounted] = useState(false);

@@ -119,25 +119,25 @@ export function Navigation() {
     setOrderQuantity(1);
   }, []);
 
-  const handleSwitchAuthMode = useCallback((mode: AuthMode) => {
+  const handleSwitchAuthMode = (mode: AuthMode) => {
     setAuthMode(mode);
-  }, []);
+  };
 
-  const handleAuthSuccess = useCallback(() => {
+  const handleAuthSuccess = () => {
     setIsLoggedIn(true);
     setCurrentPage("homepage");
-  }, []);
+  };
 
-  const handleLogout = useCallback(() => {
+  const handleLogout = () => {
     setIsLoggedIn(false);
     setUserName("");
     setCurrentPage("homepage");
-  }, []);
+  };
 
-  const handleSearch = useCallback((query: string) => {
+  const handleSearch = (query: string) => {
     setSearchQuery(query);
     setCurrentPage("search-results");
-  }, []);
+  };
 
   const renderMainContent = () => {
     if (currentPage === "auth") {

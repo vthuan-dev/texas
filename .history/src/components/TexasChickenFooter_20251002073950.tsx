@@ -6,6 +6,7 @@ import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 
 export const TexasChickenFooter = memo(function TexasChickenFooter() {
+  console.log('🟣 TexasChickenFooter RE-RENDER');
   const [email, setEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -232,4 +233,4 @@ export const TexasChickenFooter = memo(function TexasChickenFooter() {
       </div>
     </footer>
   );
-});
+}

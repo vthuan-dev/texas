@@ -43,8 +43,7 @@ const MemoizedInputField = memo(({
   value: string; 
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void; 
   placeholder: string;
-}) => {
-  return (
+}) => (
     <div>
       <label htmlFor={id} className="text-gray-700 text-sm font-medium block mb-2">
         {label}
@@ -77,6 +76,12 @@ const MemoizedTextarea = memo(({
   value: string; 
   onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void; 
   placeholder: string;
+}) => (
+    <div>
+      <label htmlFor={id} className="text-gray-700 text-sm font-medium block mb-2">
+        {label}
+      </label>
+        placeholder: string;
 }) => {
   return (
     <div>
@@ -84,14 +89,6 @@ const MemoizedTextarea = memo(({
         {label}
       </label>
       <textarea
-        id={id}
-        value={value}
-        onChange={onChange}
-        className="mt-2 w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:border-[#D42323] focus:ring-2 focus:ring-[#D42323] focus:ring-opacity-20 focus:outline-none resize-none"
-        rows={3}
-        placeholder={placeholder}
-        required
-      />
     </div>
   );
 });

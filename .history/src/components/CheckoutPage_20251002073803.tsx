@@ -44,6 +44,7 @@ const MemoizedInputField = memo(({
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void; 
   placeholder: string;
 }) => {
+  console.log(`🔵 MemoizedInputField ${id} render`);
   return (
     <div>
       <label htmlFor={id} className="text-gray-700 text-sm font-medium block mb-2">
@@ -78,6 +79,7 @@ const MemoizedTextarea = memo(({
   onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void; 
   placeholder: string;
 }) => {
+  console.log(`🟢 MemoizedTextarea ${id} render`);
   return (
     <div>
       <label htmlFor={id} className="text-gray-700 text-sm font-medium block mb-2">
@@ -114,6 +116,8 @@ export const CheckoutPage = memo(function CheckoutPage({
   isLoggedIn,
   userName
 }: CheckoutPageProps) {
+  console.log('🔄 CheckoutPage RE-RENDER');
+  
   const [formData, setFormData] = useState({
     fullName: "",
     phone: "",

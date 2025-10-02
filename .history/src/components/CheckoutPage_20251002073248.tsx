@@ -1,6 +1,8 @@
 import React, { useState, useCallback, useMemo, memo } from "react";
 import { TexasChickenHeader } from "./TexasChickenHeader";
 import { TexasChickenFooter } from "./TexasChickenFooter";
+import { Input } from "./ui/input";
+import { Label } from "./ui/label";
 
 interface Product {
   id: number;
@@ -28,7 +30,7 @@ interface CheckoutPageProps {
   userName?: string;
 }
 
-// Memoized Input Field Component with native input to prevent re-renders
+// Memoized Input Field Component to prevent re-renders
 const MemoizedInputField = memo(({ 
   id, 
   label, 
@@ -43,24 +45,22 @@ const MemoizedInputField = memo(({
   value: string; 
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void; 
   placeholder: string;
-}) => {
-  return (
-    <div>
-      <label htmlFor={id} className="text-gray-700 text-sm font-medium block mb-2">
-        {label}
-      </label>
-      <input
-        id={id}
-        type={type}
-        value={value}
-        onChange={onChange}
-        className="mt-2 w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:border-[#D42323] focus:ring-2 focus:ring-[#D42323] focus:ring-opacity-20 focus:outline-none"
-        placeholder={placeholder}
-        required
-      />
-    </div>
-  );
-});
+}) => (
+  <div>
+    <Label htmlFor={id} className="text-gray-700">
+      {label}
+    </Label>
+    <Input
+      id={id}
+      type={type}
+      value={value}
+      onChange={onChange}
+      className="mt-2 bg-white border-gray-300 focus:border-[#D42323] focus:ring-[#D42323]"
+      placeholder={placeholder}
+      required
+    />
+  </div>
+));
 
 MemoizedInputField.displayName = 'MemoizedInputField';
 
@@ -77,28 +77,26 @@ const MemoizedTextarea = memo(({
   value: string; 
   onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void; 
   placeholder: string;
-}) => {
-  return (
-    <div>
-      <label htmlFor={id} className="text-gray-700 text-sm font-medium block mb-2">
-        {label}
-      </label>
-      <textarea
-        id={id}
-        value={value}
-        onChange={onChange}
-        className="mt-2 w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:border-[#D42323] focus:ring-2 focus:ring-[#D42323] focus:ring-opacity-20 focus:outline-none resize-none"
-        rows={3}
-        placeholder={placeholder}
-        required
-      />
-    </div>
-  );
-});
+}) => (
+  <div>
+    <Label htmlFor={id} className="text-gray-700">
+      {label}
+    </Label>
+    <textarea
+      id={id}
+      value={value}
+      onChange={onChange}
+      className="mt-2 w-full px-3 py-2 border border-gray-300 rounded-lg focus:border-[#D42323] focus:ring-2 focus:ring-[#D42323] focus:ring-opacity-20 transition-colors duration-200 resize-none"
+      rows={3}
+      placeholder={placeholder}
+      required
+    />
+  </div>
+));
 
 MemoizedTextarea.displayName = 'MemoizedTextarea';
 
-export const CheckoutPage = memo(function CheckoutPage({ 
+export function CheckoutPage({ 
   product, 
   quantity = 1, 
   onBackToHome, 
@@ -114,6 +112,8 @@ export const CheckoutPage = memo(function CheckoutPage({
   isLoggedIn,
   userName
 }: CheckoutPageProps) {
+  console.log('🔄 CheckoutPage RE-RENDER');
+  
   const [formData, setFormData] = useState({
     fullName: "",
     phone: "",
@@ -172,14 +172,11 @@ export const CheckoutPage = memo(function CheckoutPage({
     }
   }, [formData.fullName, formData.phone, formData.address, onOrderComplete]);
 
-  // Memoize the logo click handler to prevent creating new reference
-  const logoClickHandler = useMemo(() => onLogoClick || onBackToHome, [onLogoClick, onBackToHome]);
-
   return (
     <div className="min-h-screen bg-[#212121] flex flex-col">
       {/* Header */}
       <TexasChickenHeader 
-        onLogoClick={logoClickHandler}
+        onLogoClick={onLogoClick || onBackToHome}
         onUserClick={onUserClick}
         onMenuClick={onMenuClick}
         onAboutClick={onAboutClick}
@@ -280,4 +277,4 @@ export const CheckoutPage = memo(function CheckoutPage({
       <TexasChickenFooter />
     </div>
   );
-});
+}

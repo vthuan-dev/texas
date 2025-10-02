@@ -1,10 +1,13 @@
-import React, { useState, useCallback } from "react";
+import { useState, useCallback } from "react";
 import { TexasChickenHeader } from "./TexasChickenHeader";
 import { TexasChickenFooter } from "./TexasChickenFooter";
 import { Breadcrumb } from "./Breadcrumb";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 import { Minus, Plus, ChevronLeft, ChevronRight, X, Star } from "lucide-react";
+import { Input } from "./ui/input";
+import { Label } from "./ui/label";
 import { Button } from "./ui/button";
+import { Textarea } from "./ui/textarea";
 import { motion, AnimatePresence } from "motion/react";
 import { toast } from "sonner@2.0.3";
 import productImage from "figma:asset/a5eabe6b42e39f4bdb11d37f86b6f3e84077c007.png";
@@ -105,16 +108,22 @@ export function ProductDetailPage({
   // Use provided product or default to currentProduct
   const displayProduct = product || currentProduct;
   
-  // Calculate price number early for use in handlers
-  const priceNumber = parseInt((displayProduct?.price || currentProduct.price || '0').replace(/[^\d]/g, ''));
-  
   // Review states
   const [rating, setRating] = useState(0);
   const [hoveredRating, setHoveredRating] = useState(0);
   const [reviewComment, setReviewComment] = useState("");
   const [reviewError, setReviewError] = useState("");
   
-  // Only keep modal visibility state in parent
+  // Separate local states for each form field to prevent re-renders
+  const [fullName, setFullName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [address, setAddress] = useState("");
+  
+  // Voucher states
+  const [voucherCode, setVoucherCode] = useState("");
+  const [voucherDiscount, setVoucherDiscount] = useState(0);
+  const [voucherMessage, setVoucherMessage] = useState("");
+  const [voucherStatus, setVoucherStatus] = useState<"idle" | "success" | "error">("idle");
 
   // Sample reviews data
   const sampleReviews = [
@@ -155,7 +164,7 @@ export function ProductDetailPage({
   const breadcrumbItems = [
     { label: "Trang chủ", onClick: onBackToHome },
     { label: "Thực đơn", onClick: onBackToMenu },
-    { label: displayProduct.name || currentProduct.name, active: true }
+    { label: "Combo Burger Tex Supreme", active: true }
   ];
 
   const handleQuantityChange = useCallback((change: number) => {
@@ -167,37 +176,63 @@ export function ProductDetailPage({
     setShowCheckoutModal(true);
   }, []);
 
-  // Simplified modal handlers
-  const handleModalClose = useCallback(() => {
-    setShowCheckoutModal(false);
+  // Separate optimized handlers for each field
+  const handleFullNameChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setFullName(e.target.value);
   }, []);
 
-  const handleOrderComplete = useCallback(() => {
+  const handlePhoneChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setPhone(e.target.value);
+  }, []);
+
+  const handleAddressChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setAddress(e.target.value);
+  }, []);
+
+  const handleSubmit = useCallback((e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Basic validation
+    if (!fullName || !phone || !address) {
+      alert("Vui lòng điền đầy đủ thông tin!");
+      return;
+    }
+
+    // Close modal and trigger success
     setShowCheckoutModal(false);
     if (onOrderComplete) {
       onOrderComplete();
     }
-  }, [onOrderComplete]);
+  }, [fullName, phone, address, onOrderComplete]);
 
-  const handleReviewCommentChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setReviewComment(e.target.value);
+  const handleModalClose = useCallback(() => {
+    setShowCheckoutModal(false);
+    setFullName("");
+    setPhone("");
+    setAddress("");
   }, []);
 
-  // Review functions - memoized
-  const handleStarClick = useCallback((starIndex: number) => {
+  const handleBackgroundClick = useCallback((e: React.MouseEvent) => {
+    if (e.target === e.currentTarget) {
+      handleModalClose();
+    }
+  }, [handleModalClose]);
+
+  // Review functions
+  const handleStarClick = (starIndex: number) => {
     setRating(starIndex + 1);
     setReviewError("");
-  }, []);
+  };
 
-  const handleStarHover = useCallback((starIndex: number) => {
+  const handleStarHover = (starIndex: number) => {
     setHoveredRating(starIndex + 1);
-  }, []);
+  };
 
-  const handleStarLeave = useCallback(() => {
+  const handleStarLeave = () => {
     setHoveredRating(0);
-  }, []);
+  };
 
-  const handleReviewSubmit = useCallback((e: React.FormEvent) => {
+  const handleReviewSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
     if (rating === 0) {
@@ -220,9 +255,38 @@ export function ProductDetailPage({
     setRating(0);
     setReviewComment("");
     setReviewError("");
-  }, [rating, reviewComment]);
+  };
 
-  // Voucher logic moved to CheckoutModal component
+  // Voucher functions
+  const handleVoucherApply = () => {
+    setVoucherStatus("idle");
+    setVoucherMessage("");
+    
+    // Valid voucher codes
+    const validVouchers = {
+      "TEXAS20": { discount: 20000, message: "Giảm 20.000đ cho đơn hàng từ 80.000đ" },
+      "COMBO30": { discount: 30000, message: "Giảm 30.000đ cho combo đặc biệt" },
+      "NEWUSER": { discount: 15000, message: "Giảm 15.000đ cho khách hàng mới" },
+      "FLASH50": { discount: 50000, message: "Flash sale - Giảm 50.000đ" }
+    };
+
+    const voucher = validVouchers[voucherCode.toUpperCase() as keyof typeof validVouchers];
+    
+    if (voucher) {
+      const currentTotal = priceNumber * quantity;
+      if (currentTotal >= voucher.discount) {
+        setVoucherDiscount(voucher.discount);
+        setVoucherStatus("success");
+        setVoucherMessage(`Áp dụng voucher thành công! ${voucher.message}`);
+      } else {
+        setVoucherStatus("error");
+        setVoucherMessage("Đơn hàng không đủ điều kiện áp dụng voucher này.");
+      }
+    } else {
+      setVoucherStatus("error");
+      setVoucherMessage("Mã voucher không hợp lệ hoặc đã hết hạn.");
+    }
+  };
 
   const renderStarRating = (rating: number, size: "sm" | "lg" = "sm") => {
     const starSize = size === "lg" ? 24 : 16;
@@ -261,9 +325,13 @@ export function ProductDetailPage({
     return products;
   };
 
-  // Simple calculation for display (detailed calculations moved to modal)
+  // Calculate total (remove currency symbol and dots for calculation)
+  const priceNumber = parseInt(currentProduct.price.replace(/[^\d]/g, ''));
   const subtotal = priceNumber * quantity;
-  const formattedTotal = subtotal.toLocaleString('vi-VN') + 'đ';
+  const totalPrice = Math.max(0, subtotal - voucherDiscount);
+  const formattedSubtotal = subtotal.toLocaleString('vi-VN') + 'đ';
+  const formattedTotal = totalPrice.toLocaleString('vi-VN') + 'đ';
+  const formattedDiscount = voucherDiscount.toLocaleString('vi-VN') + 'đ';
 
   const ProductCard = ({ product }: { product: Product }) => (
     <div className="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 flex-shrink-0 w-64 lg:w-72">
@@ -291,289 +359,208 @@ export function ProductDetailPage({
     </div>
   );
 
-  // Checkout Modal Component - Self-contained with local state management
-  const CheckoutModal = () => {
-    // Local states - completely isolated from parent
-    const [fullName, setFullName] = useState("");
-    const [phone, setPhone] = useState("");
-    const [address, setAddress] = useState("");
-    const [voucherCode, setVoucherCode] = useState("");
-    const [voucherDiscount, setVoucherDiscount] = useState(0);
-    const [voucherMessage, setVoucherMessage] = useState("");
-    const [voucherStatus, setVoucherStatus] = useState<"idle" | "success" | "error">("idle");
-
-    // Local calculations
-    const subtotal = priceNumber * quantity;
-    const totalPrice = Math.max(0, subtotal - voucherDiscount);
-    const formattedSubtotal = subtotal.toLocaleString('vi-VN') + 'đ';
-    const formattedTotal = totalPrice.toLocaleString('vi-VN') + 'đ';
-    const formattedDiscount = voucherDiscount.toLocaleString('vi-VN') + 'đ';
-
-    // Local handlers - no dependencies on parent state
-    const handleFullNameChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-      setFullName(e.target.value);
-    }, []);
-
-    const handlePhoneChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-      setPhone(e.target.value);
-    }, []);
-
-    const handleAddressChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
-      setAddress(e.target.value);
-    }, []);
-
-    const handleVoucherCodeChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-      setVoucherCode(e.target.value);
-    }, []);
-
-    const handleVoucherApply = useCallback(() => {
-      setVoucherStatus("idle");
-      setVoucherMessage("");
-      
-      const validVouchers = {
-        "TEXAS20": { discount: 20000, message: "Giảm 20.000đ cho đơn hàng từ 80.000đ" },
-        "COMBO30": { discount: 30000, message: "Giảm 30.000đ cho combo đặc biệt" },
-        "NEWUSER": { discount: 15000, message: "Giảm 15.000đ cho khách hàng mới" },
-        "FLASH50": { discount: 50000, message: "Flash sale - Giảm 50.000đ" }
-      };
-
-      const voucher = validVouchers[voucherCode.toUpperCase() as keyof typeof validVouchers];
-      
-      if (voucher) {
-        const currentTotal = priceNumber * quantity;
-        if (currentTotal >= voucher.discount) {
-          setVoucherDiscount(voucher.discount);
-          setVoucherStatus("success");
-          setVoucherMessage(`Áp dụng voucher thành công! ${voucher.message}`);
-        } else {
-          setVoucherStatus("error");
-          setVoucherMessage("Đơn hàng không đủ điều kiện áp dụng voucher này.");
-        }
-      } else {
-        setVoucherStatus("error");
-        setVoucherMessage("Mã voucher không hợp lệ hoặc đã hết hạn.");
-      }
-    }, [voucherCode, priceNumber, quantity]);
-
-    const handleSubmit = useCallback((e: React.FormEvent) => {
-      e.preventDefault();
-      
-      if (!fullName || !phone || !address) {
-        alert("Vui lòng điền đầy đủ thông tin!");
-        return;
-      }
-
-      handleOrderComplete();
-    }, [fullName, phone, address, handleOrderComplete]);
-
-    const handleBackgroundClick = useCallback((e: React.MouseEvent) => {
-      if (e.target === e.currentTarget) {
-        handleModalClose();
-      }
-    }, [handleModalClose]);
-
-    return (
-      <div
-        className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4"
-        onClick={handleBackgroundClick}
+  // Checkout Modal Component
+  const CheckoutModal = () => (
+    <div
+      className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+      onClick={handleBackgroundClick}
+    >
+      <motion.div
+        initial={{ scale: 0.9, opacity: 0, y: 20 }}
+        animate={{ scale: 1, opacity: 1, y: 0 }}
+        exit={{ scale: 0.9, opacity: 0, y: 20 }}
+        transition={{ duration: 0.3, ease: "easeOut" }}
+        className="bg-white rounded-3xl max-w-3xl w-full max-h-[95vh] overflow-hidden shadow-2xl relative"
+        onClick={(e) => e.stopPropagation()}
       >
-        <motion.div
-          initial={{ scale: 0.9, opacity: 0, y: 20 }}
-          animate={{ scale: 1, opacity: 1, y: 0 }}
-          exit={{ scale: 0.9, opacity: 0, y: 20 }}
-          transition={{ duration: 0.3, ease: "easeOut" }}
-          className="bg-white rounded-3xl max-w-3xl w-full max-h-[95vh] overflow-hidden shadow-2xl relative"
-          onClick={(e) => e.stopPropagation()}
-        >
-          {/* Header */}
-          <div className="bg-gradient-to-r from-[#8B7355] to-[#A0826D] px-8 py-6 relative">
-            <button
-              onClick={handleModalClose}
-              className="absolute top-6 right-6 p-2 text-white hover:bg-white/20 rounded-full transition-colors duration-200"
-            >
-              <X size={24} />
-            </button>
-            <h1 className="text-white text-2xl text-center pr-12">THÔNG TIN GIAO HÀNG</h1>
-          </div>
+        {/* Header */}
+        <div className="bg-gradient-to-r from-[#8B7355] to-[#A0826D] px-8 py-6 relative">
+          <button
+            onClick={handleModalClose}
+            className="absolute top-6 right-6 p-2 text-white hover:bg-white/20 rounded-full transition-colors duration-200"
+          >
+            <X size={24} />
+          </button>
+          <h1 className="text-white text-2xl text-center pr-12">THÔNG TIN GIAO HÀNG</h1>
+        </div>
 
-          <div className="overflow-y-auto max-h-[calc(95vh-120px)] px-8 py-6">
-            {/* Order Summary */}
-            <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-6 mb-8 border border-gray-200">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-gray-800 text-xl">Tóm tắt đơn hàng</h2>
-                <div className="bg-[#D42323] text-white px-3 py-1 rounded-full text-sm">
-                  {quantity} món
-                </div>
-              </div>
-              
-              <div className="space-y-4">
-                <div className="flex justify-between items-start">
-                  <div className="flex-1">
-                    <span className="text-gray-800">{displayProduct.name || currentProduct.name}</span>
-                    <div className="text-gray-500 text-sm mt-1">Số lượng: {quantity}</div>
-                  </div>
-                  <span className="text-gray-800 ml-4">{formattedSubtotal}</span>
-                </div>
-                
-                {voucherDiscount > 0 && (
-                  <div className="flex justify-between items-center text-green-600 bg-green-50 px-4 py-2 rounded-lg">
-                    <span>Voucher giảm giá</span>
-                    <span>-{formattedDiscount}</span>
-                  </div>
-                )}
-                
-                <div className="border-t pt-4">
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-800 text-lg">Tổng thanh toán</span>
-                    <span className="text-[#D42323] text-2xl">{formattedTotal}</span>
-                  </div>
-                  <p className="text-gray-500 text-sm mt-1">Đã bao gồm phí giao hàng</p>
-                </div>
+        <div className="overflow-y-auto max-h-[calc(95vh-120px)] px-8 py-6">
+          {/* Order Summary */}
+          <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-6 mb-8 border border-gray-200">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-gray-800 text-xl">Tóm tắt đơn hàng</h2>
+              <div className="bg-[#D42323] text-white px-3 py-1 rounded-full text-sm">
+                {quantity} món
               </div>
             </div>
+            
+            <div className="space-y-4">
+              <div className="flex justify-between items-start">
+                <div className="flex-1">
+                  <span className="text-gray-800">{currentProduct.name}</span>
+                  <div className="text-gray-500 text-sm mt-1">Số lượng: {quantity}</div>
+                </div>
+                <span className="text-gray-800 ml-4">{formattedSubtotal}</span>
+              </div>
+              
+              {voucherDiscount > 0 && (
+                <div className="flex justify-between items-center text-green-600 bg-green-50 px-4 py-2 rounded-lg">
+                  <span>Voucher giảm giá</span>
+                  <span>-{formattedDiscount}</span>
+                </div>
+              )}
+              
+              <div className="border-t pt-4">
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-800 text-lg">Tổng thanh toán</span>
+                  <span className="text-[#D42323] text-2xl">{formattedTotal}</span>
+                </div>
+                <p className="text-gray-500 text-sm mt-1">Đã bao gồm phí giao hàng</p>
+              </div>
+            </div>
+          </div>
 
-            {/* Form */}
-            <form onSubmit={handleSubmit} className="space-y-8">
-              {/* Customer Information */}
-              <div className="bg-white border border-gray-200 rounded-2xl p-6">
-                <h3 className="text-gray-800 text-lg mb-6 flex items-center gap-3">
-                  <div className="w-8 h-8 bg-[#8B7355] text-white rounded-full flex items-center justify-center text-sm">1</div>
-                  Thông tin khách hàng
-                </h3>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label htmlFor="fullName" className="text-gray-700 mb-3 block">
-                      Họ và tên *
-                    </label>
-                    <input
-                      id="fullName"
-                      type="text"
-                      value={fullName}
-                      onChange={handleFullNameChange}
-                      className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-[#8B7355] focus:ring-2 focus:ring-[#8B7355] focus:ring-opacity-20 transition-colors duration-200 h-12"
-                      placeholder="Nhập họ và tên của bạn"
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label htmlFor="phone" className="text-gray-700 mb-3 block">
-                      Số điện thoại *
-                    </label>
-                    <input
-                      id="phone"
-                      type="tel"
-                      value={phone}
-                      onChange={handlePhoneChange}
-                      className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-[#8B7355] focus:ring-2 focus:ring-[#8B7355] focus:ring-opacity-20 transition-colors duration-200 h-12"
-                      placeholder="Nhập số điện thoại"
-                      required
-                    />
-                  </div>
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="space-y-8">
+            {/* Customer Information */}
+            <div className="bg-white border border-gray-200 rounded-2xl p-6">
+              <h3 className="text-gray-800 text-lg mb-6 flex items-center gap-3">
+                <div className="w-8 h-8 bg-[#8B7355] text-white rounded-full flex items-center justify-center text-sm">1</div>
+                Thông tin khách hàng
+              </h3>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <Label htmlFor="fullName" className="text-gray-700 mb-3 block">
+                    Họ và tên *
+                  </Label>
+                  <Input
+                    id="fullName"
+                    type="text"
+                    value={fullName}
+                    onChange={handleFullNameChange}
+                    className="bg-gray-50 border-gray-200 focus:border-[#8B7355] focus:ring-[#8B7355] rounded-xl h-12"
+                    placeholder="Nhập họ và tên của bạn"
+                    required
+                  />
                 </div>
 
-                <div className="mt-6">
-                  <label htmlFor="address" className="text-gray-700 mb-3 block">
-                    Địa chỉ nhận hàng *
-                  </label>
-                  <textarea
-                    id="address"
-                    value={address}
-                    onChange={handleAddressChange}
-                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-[#8B7355] focus:ring-2 focus:ring-[#8B7355] focus:ring-opacity-20 transition-colors duration-200 resize-none"
-                    rows={3}
-                    placeholder="Nhập địa chỉ chi tiết để nhận hàng"
+                <div>
+                  <Label htmlFor="phone" className="text-gray-700 mb-3 block">
+                    Số điện thoại *
+                  </Label>
+                  <Input
+                    id="phone"
+                    type="tel"
+                    value={phone}
+                    onChange={handlePhoneChange}
+                    className="bg-gray-50 border-gray-200 focus:border-[#8B7355] focus:ring-[#8B7355] rounded-xl h-12"
+                    placeholder="Nhập số điện thoại"
                     required
                   />
                 </div>
               </div>
 
-              {/* Voucher Section */}
-              <div className="bg-white border border-gray-200 rounded-2xl p-6">
-                <h3 className="text-gray-800 text-lg mb-6 flex items-center gap-3">
-                  <div className="w-8 h-8 bg-[#FFC72C] text-gray-800 rounded-full flex items-center justify-center text-sm">2</div>
-                  Mã giảm giá
-                </h3>
-                
-                <div className="flex gap-3">
-                  <input
-                    type="text"
-                    value={voucherCode}
-                    onChange={handleVoucherCodeChange}
-                    className="flex-1 px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-[#8B7355] focus:ring-2 focus:ring-[#8B7355] focus:ring-opacity-20 transition-colors duration-200 h-12"
-                    placeholder="Nhập mã voucher"
-                  />
-                  <button
-                    type="button"
-                    onClick={handleVoucherApply}
-                    className="px-6 py-3 bg-gradient-to-r from-[#FFC72C] to-[#FFD700] text-gray-800 rounded-xl hover:from-[#FFD700] hover:to-[#FFC72C] transition-all duration-200 whitespace-nowrap"
-                  >
-                    Áp dụng
-                  </button>
-                </div>
-                
-                {voucherMessage && (
-                  <div className={`mt-4 p-3 rounded-lg text-sm ${
-                    voucherStatus === "success" 
-                      ? "bg-green-50 text-green-700 border border-green-200" 
-                      : "bg-red-50 text-red-700 border border-red-200"
-                  }`}>
-                    {voucherMessage}
-                  </div>
-                )}
-                
-                <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
-                  <p className="text-blue-700 text-sm">
-                    💡 Mã voucher có sẵn: <span className="font-mono">TEXAS20</span>, <span className="font-mono">COMBO30</span>, <span className="font-mono">NEWUSER</span>, <span className="font-mono">FLASH50</span>
-                  </p>
-                </div>
+              <div className="mt-6">
+                <Label htmlFor="address" className="text-gray-700 mb-3 block">
+                  Địa chỉ nhận hàng *
+                </Label>
+                <textarea
+                  id="address"
+                  value={address}
+                  onChange={handleAddressChange}
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-[#8B7355] focus:ring-2 focus:ring-[#8B7355] focus:ring-opacity-20 transition-colors duration-200 resize-none"
+                  rows={3}
+                  placeholder="Nhập địa chỉ chi tiết để nhận hàng"
+                  required
+                />
               </div>
+            </div>
 
-              {/* Payment Method */}
-              <div className="bg-white border border-gray-200 rounded-2xl p-6">
-                <h3 className="text-gray-800 text-lg mb-6 flex items-center gap-3">
-                  <div className="w-8 h-8 bg-[#8B7355] text-white rounded-full flex items-center justify-center text-sm">3</div>
-                  Phương thức thanh toán
-                </h3>
-                
-                <div className="grid gap-4">
-                  <div className="flex items-center space-x-3 p-4 bg-gradient-to-r from-[#8B7355] to-[#A0826D] text-white rounded-xl shadow-lg">
-                    <div className="w-5 h-5 bg-white rounded-full flex items-center justify-center">
-                      <div className="w-3 h-3 bg-[#8B7355] rounded-full"></div>
-                    </div>
-                    <div>
-                      <span className="block">Thanh toán khi nhận hàng</span>
-                      <span className="text-sm opacity-90">Tiền mặt</span>
-                    </div>
-                  </div>
-                  
-                  <div className="bg-gray-50 border-2 border-dashed border-gray-300 rounded-xl p-4 text-center">
-                    <p className="text-gray-500 text-sm">Phương thức thanh toán khác sẽ sớm được cập nhật</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Submit Button */}
-              <div className="sticky bottom-0 bg-white pt-6 border-t">
+            {/* Voucher Section */}
+            <div className="bg-white border border-gray-200 rounded-2xl p-6">
+              <h3 className="text-gray-800 text-lg mb-6 flex items-center gap-3">
+                <div className="w-8 h-8 bg-[#FFC72C] text-gray-800 rounded-full flex items-center justify-center text-sm">2</div>
+                Mã giảm giá
+              </h3>
+              
+              <div className="flex gap-3">
+                <Input
+                  type="text"
+                  value={voucherCode}
+                  onChange={(e) => setVoucherCode(e.target.value)}
+                  className="flex-1 bg-gray-50 border-gray-200 focus:border-[#8B7355] focus:ring-[#8B7355] rounded-xl h-12"
+                  placeholder="Nhập mã voucher"
+                />
                 <button
-                  type="submit"
-                  className="w-full bg-gradient-to-r from-[#8B7355] to-[#A0826D] text-white py-4 px-8 rounded-2xl hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200 uppercase tracking-wide text-lg relative overflow-hidden group"
+                  type="button"
+                  onClick={handleVoucherApply}
+                  className="px-6 py-3 bg-gradient-to-r from-[#FFC72C] to-[#FFD700] text-gray-800 rounded-xl hover:from-[#FFD700] hover:to-[#FFC72C] transition-all duration-200 whitespace-nowrap"
                 >
-                  <span className="relative z-10">HOÀN TẤT ĐẶT HÀNG - {formattedTotal}</span>
-                  <div className="absolute inset-0 bg-white/10 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></div>
+                  Áp dụng
                 </button>
-                
-                <p className="text-gray-500 text-sm text-center mt-4">
-                  * Các thông tin có dấu sao là bắt buộc phải điền
+              </div>
+              
+              {voucherMessage && (
+                <div className={`mt-4 p-3 rounded-lg text-sm ${
+                  voucherStatus === "success" 
+                    ? "bg-green-50 text-green-700 border border-green-200" 
+                    : "bg-red-50 text-red-700 border border-red-200"
+                }`}>
+                  {voucherMessage}
+                </div>
+              )}
+              
+              <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                <p className="text-blue-700 text-sm">
+                  💡 Mã voucher có sẵn: <span className="font-mono">TEXAS20</span>, <span className="font-mono">COMBO30</span>, <span className="font-mono">NEWUSER</span>, <span className="font-mono">FLASH50</span>
                 </p>
               </div>
-            </form>
-          </div>
-        </motion.div>
-      </div>
-    );
-  };
+            </div>
+
+            {/* Payment Method */}
+            <div className="bg-white border border-gray-200 rounded-2xl p-6">
+              <h3 className="text-gray-800 text-lg mb-6 flex items-center gap-3">
+                <div className="w-8 h-8 bg-[#8B7355] text-white rounded-full flex items-center justify-center text-sm">3</div>
+                Phương thức thanh toán
+              </h3>
+              
+              <div className="grid gap-4">
+                <div className="flex items-center space-x-3 p-4 bg-gradient-to-r from-[#8B7355] to-[#A0826D] text-white rounded-xl shadow-lg">
+                  <div className="w-5 h-5 bg-white rounded-full flex items-center justify-center">
+                    <div className="w-3 h-3 bg-[#8B7355] rounded-full"></div>
+                  </div>
+                  <div>
+                    <span className="block">Thanh toán khi nhận hàng</span>
+                    <span className="text-sm opacity-90">Tiền mặt</span>
+                  </div>
+                </div>
+                
+                <div className="bg-gray-50 border-2 border-dashed border-gray-300 rounded-xl p-4 text-center">
+                  <p className="text-gray-500 text-sm">Phương thức thanh toán khác sẽ sớm được cập nhật</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Submit Button */}
+            <div className="sticky bottom-0 bg-white pt-6 border-t">
+              <button
+                type="submit"
+                className="w-full bg-gradient-to-r from-[#8B7355] to-[#A0826D] text-white py-4 px-8 rounded-2xl hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200 uppercase tracking-wide text-lg relative overflow-hidden group"
+              >
+                <span className="relative z-10">HOÀN TẤT ĐẶT HÀNG - {formattedTotal}</span>
+                <div className="absolute inset-0 bg-white/10 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></div>
+              </button>
+              
+              <p className="text-gray-500 text-sm text-center mt-4">
+                * Các thông tin có dấu sao là bắt buộc phải điền
+              </p>
+            </div>
+          </form>
+        </div>
+      </motion.div>
+    </div>
+  );
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -603,8 +590,8 @@ export function ProductDetailPage({
               <div className="relative bg-gradient-to-br from-gray-50 to-gray-100 p-6 lg:p-8">
                 <div className="aspect-square flex items-center justify-center">
                   <img
-                    src={displayProduct.image || currentProduct.image}
-                    alt={displayProduct.name || currentProduct.name}
+                    src={currentProduct.image}
+                    alt={currentProduct.name}
                     className="w-full h-full object-contain max-w-sm mx-auto drop-shadow-xl"
                   />
                 </div>
@@ -622,18 +609,18 @@ export function ProductDetailPage({
                 </div>
 
                 <h1 className="text-gray-800 text-2xl lg:text-3xl mb-4 leading-tight">
-                  {displayProduct.name || currentProduct.name}
+                  {currentProduct.name}
                 </h1>
                 
                 {/* Price Section */}
                 <div className="bg-gradient-to-r from-[#FFC72C]/10 to-[#FFD700]/10 rounded-xl p-4 mb-6">
                   <div className="flex items-baseline gap-3 mb-1">
                     <span className="text-[#FFC72C] text-2xl lg:text-3xl tracking-tight">
-                      Giá bán: {displayProduct.price || currentProduct.price}
+                      Giá bán: {currentProduct.price}
                     </span>
-                    {(displayProduct.originalPrice || currentProduct.originalPrice) && (
+                    {currentProduct.originalPrice && (
                       <span className="text-gray-400 line-through text-lg lg:text-xl">
-                        {displayProduct.originalPrice || currentProduct.originalPrice}
+                        {currentProduct.originalPrice}
                       </span>
                     )}
                   </div>
@@ -644,7 +631,7 @@ export function ProductDetailPage({
                 <div className="mb-6">
                   <h3 className="text-gray-800 text-base mb-3">Bao gồm:</h3>
                   <div className="space-y-2">
-                    {(displayProduct.description || currentProduct.description || []).map((item, index) => (
+                    {currentProduct.description.map((item, index) => (
                       <div key={index} className="flex items-start gap-2">
                         <div className="w-1.5 h-1.5 bg-[#D42323] rounded-full mt-1.5 flex-shrink-0"></div>
                         <p className="text-gray-700 text-sm lg:text-base leading-relaxed">
@@ -750,7 +737,7 @@ export function ProductDetailPage({
               <form onSubmit={handleReviewSubmit} className="space-y-6">
                 {/* Star Rating Input */}
                 <div>
-                  <label className="text-gray-700 mb-3 block">Đánh giá của bạn</label>
+                  <Label className="text-gray-700 mb-3 block">Đánh giá của bạn</Label>
                   <div className="flex items-center gap-2">
                     {[...Array(5)].map((_, index) => (
                       <button
@@ -779,15 +766,15 @@ export function ProductDetailPage({
 
                 {/* Comment Box */}
                 <div>
-                  <label htmlFor="reviewComment" className="text-gray-700 mb-3 block">
+                  <Label htmlFor="reviewComment" className="text-gray-700 mb-3 block">
                     Nhận xét của bạn
-                  </label>
-                  <textarea
+                  </Label>
+                  <Textarea
                     id="reviewComment"
                     value={reviewComment}
-                    onChange={handleReviewCommentChange}
+                    onChange={(e) => setReviewComment(e.target.value)}
                     placeholder="Chia sẻ cảm nhận của bạn về sản phẩm..."
-                    className="w-full px-4 py-3 min-h-[120px] bg-gray-50 border border-gray-200 rounded-xl focus:border-[#D42323] focus:ring-2 focus:ring-[#D42323] focus:ring-opacity-20 transition-colors duration-200 resize-none"
+                    className="min-h-[120px] bg-gray-50 border-gray-200 focus:border-[#D42323] focus:ring-[#D42323]/20 resize-none"
                     rows={4}
                   />
                 </div>

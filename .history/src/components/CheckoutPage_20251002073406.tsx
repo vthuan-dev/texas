@@ -1,6 +1,8 @@
 import React, { useState, useCallback, useMemo, memo } from "react";
 import { TexasChickenHeader } from "./TexasChickenHeader";
 import { TexasChickenFooter } from "./TexasChickenFooter";
+import { Input } from "./ui/input";
+import { Label } from "./ui/label";
 
 interface Product {
   id: number;
@@ -44,6 +46,7 @@ const MemoizedInputField = memo(({
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void; 
   placeholder: string;
 }) => {
+  console.log(`🔵 MemoizedInputField ${id} render`);
   return (
     <div>
       <label htmlFor={id} className="text-gray-700 text-sm font-medium block mb-2">
@@ -54,7 +57,7 @@ const MemoizedInputField = memo(({
         type={type}
         value={value}
         onChange={onChange}
-        className="mt-2 w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:border-[#D42323] focus:ring-2 focus:ring-[#D42323] focus:ring-opacity-20 focus:outline-none"
+        className="mt-2 w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:border-[#D42323] focus:ring-2 focus:ring-[#D42323] focus:ring-opacity-20 focus:outline-none transition-colors duration-200"
         placeholder={placeholder}
         required
       />
@@ -77,28 +80,26 @@ const MemoizedTextarea = memo(({
   value: string; 
   onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void; 
   placeholder: string;
-}) => {
-  return (
-    <div>
-      <label htmlFor={id} className="text-gray-700 text-sm font-medium block mb-2">
-        {label}
-      </label>
-      <textarea
-        id={id}
-        value={value}
-        onChange={onChange}
-        className="mt-2 w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:border-[#D42323] focus:ring-2 focus:ring-[#D42323] focus:ring-opacity-20 focus:outline-none resize-none"
-        rows={3}
-        placeholder={placeholder}
-        required
-      />
-    </div>
-  );
-});
+}) => (
+  <div>
+    <Label htmlFor={id} className="text-gray-700">
+      {label}
+    </Label>
+    <textarea
+      id={id}
+      value={value}
+      onChange={onChange}
+      className="mt-2 w-full px-3 py-2 border border-gray-300 rounded-lg focus:border-[#D42323] focus:ring-2 focus:ring-[#D42323] focus:ring-opacity-20 transition-colors duration-200 resize-none"
+      rows={3}
+      placeholder={placeholder}
+      required
+    />
+  </div>
+));
 
 MemoizedTextarea.displayName = 'MemoizedTextarea';
 
-export const CheckoutPage = memo(function CheckoutPage({ 
+export function CheckoutPage({ 
   product, 
   quantity = 1, 
   onBackToHome, 
@@ -114,6 +115,8 @@ export const CheckoutPage = memo(function CheckoutPage({
   isLoggedIn,
   userName
 }: CheckoutPageProps) {
+  console.log('🔄 CheckoutPage RE-RENDER');
+  
   const [formData, setFormData] = useState({
     fullName: "",
     phone: "",
@@ -280,4 +283,4 @@ export const CheckoutPage = memo(function CheckoutPage({
       <TexasChickenFooter />
     </div>
   );
-});
+}
